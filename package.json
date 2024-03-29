@@ -1,0 +1,20 @@
+{
+  "name": "surf-forecast-bot",
+  "version": "1.0.0",
+  "description": "Bot to inform surf forecasts on some beaches",
+  "main": "index.js",
+  "author": "Oscar Kemuel",
+  "license": "ISC",
+  "scripts": {
+    "start:dev": "tsx watch src/server.ts",
+    "build": "tsup src"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.2",
+    "tsx": "^4.7.1",
+    "typescript": "^5.4.3"
+  },
+  "dependencies": {
+    "fastify": "^4.26.2"
+  }
+}
