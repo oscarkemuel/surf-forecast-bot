@@ -13,7 +13,7 @@ export const BEACHS: Beach[] = [
   {
     id: "ponta-negra",
     name: "Ponta Negra Beach",
-    nameGuru: "brasil/rio-grande-do-norte/natal/ponta-negra",
+    nameGuru: "brasil/rio-grande-do-norte/natal/praia-ponta-negra",
   },
   {
     id: "areia-preta",
