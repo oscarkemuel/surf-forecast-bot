@@ -50,7 +50,13 @@ export function formatForecastDay(forecast: ForecastDay) {
     )}\n*${escapeMarkdownV2(total.windDirection.toString())}*\n`;
   });
 
-  return `*${date}*\n${formattedHours.join("")}`;
+  return `*${escapeMarkdownV2(date || "")}*\n${formattedHours.join("")}`;
+}
+
+export function formatForecastOneDay(beachName: string, forecast: ForecastDay) {
+  const formatForecast = formatForecastDay(forecast);
+
+  return `*${beachName}*\n\n${formatForecast}`;
 }
 
 export function formatForecastTodayAndTomorrow(

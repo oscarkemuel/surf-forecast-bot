@@ -14,3 +14,28 @@ export const getForecastByBeachIdOptions: RouteShorthandOptions = {
     },
   },
 };
+
+export const getOneDayForecastByBeachIdOptions: RouteShorthandOptions = {
+  schema: {
+    params: {
+      type: "object",
+      properties: {
+        beach: {
+          type: "string",
+          minLength: 1,
+        },
+      },
+      required: ["beach"],
+    },
+    querystring: {
+      type: "object",
+      properties: {
+        day: {
+          type: "string",
+          enum: ["today", "tomorrow"],
+        },
+      },
+      required: ["day"],
+    },
+  },
+};

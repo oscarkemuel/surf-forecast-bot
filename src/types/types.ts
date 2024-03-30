@@ -20,3 +20,5 @@ export interface Beach {
   name: string;
   nameGuru: string;
 }
+
+export type Day = "today" | "tomorrow";
