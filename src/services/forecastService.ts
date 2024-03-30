@@ -1,17 +1,25 @@
+import { getBeachById } from "../constants/beachs";
+import { formatForecastTodayAndTomorrow } from "../utils/messages";
+import ScrapingService from "./scrapingService";
 import TelegrafService from "./telegrafService";
 
 class ForecastService {
   private telegrafService = new TelegrafService();
+  private scrapingService = new ScrapingService();
 
   async getForecastByBeachId(beach: string) {
-    await this.telegrafService.sendMessage(`Getting forecast for ${beach}`);
+    const selectedBeach = getBeachById(beach);
+    if (!selectedBeach) {
+      throw new Error("Beach not found");
+    }
 
-    return {
-      swellDirection: "S",
-      swellHeight: "2.3",
-      swellPeriod: "8.4",
-      time: "2020-04-26T12:00:00+00:00",
-    };
+    const days = await this.scrapingService.getForecastByBeachId(selectedBeach);
+
+    this.telegrafService.sendMessage(
+      formatForecastTodayAndTomorrow(selectedBeach.name, days)
+    );
+
+    return days;
   }
 }
 
