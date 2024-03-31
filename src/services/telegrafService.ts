@@ -13,7 +13,6 @@ class TelegrafService {
     this.botToken = process.env.TELEGRAM_TOKEN_BOT || "";
     this.telegramChatId = process.env.TELEGRAM_CHAT_ID || "";
     this.bot = new Telegraf(this.botToken);
-    this.hearBot();
   }
 
   private getDates() {
