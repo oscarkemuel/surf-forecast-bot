@@ -22,7 +22,9 @@ class TelegrafService {
     for (let i = 0; i < 5; i++) {
       const newDate = new Date();
       newDate.setDate(today.getDate() + i);
-      dates.push(newDate.toLocaleDateString("pt-BR"));
+      dates.push(newDate.toLocaleDateString("pt-BR", {
+        timeZone: "America/Sao_Paulo",
+      }));
     }
 
     return dates;
@@ -49,7 +51,15 @@ class TelegrafService {
             selectedBeach
           );
 
-          await this.sendMessage(formatForecastOneDay(selectedBeach.name, days[i]));
+          const day = days.find((day) => {
+            // SEGUNDA-FEIRA 02 === 02/08/2021
+            // 02 === 02
+            return day.date?.slice(-2) === this.getDates()[i].slice(0, 2);
+          });
+
+          await this.sendMessage(
+            formatForecastOneDay(selectedBeach.name, day || days[0])
+          );
         });
       }
 
