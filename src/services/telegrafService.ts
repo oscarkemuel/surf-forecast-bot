@@ -2,6 +2,7 @@ import { Markup, Telegraf } from "telegraf";
 import ScrapingService from "./scrapingService";
 import { getBeachById } from "../constants/beachs";
 import { formatForecastOneDay } from "../utils/messages";
+import { Beach } from "../types/types";
 
 class TelegrafService {
   private botToken;
@@ -10,58 +11,62 @@ class TelegrafService {
   private scrapingService = new ScrapingService();
 
   constructor() {
-    this.botToken = process.env.TELEGRAM_TOKEN_BOT || "";
-    this.telegramChatId = process.env.TELEGRAM_CHAT_ID || "";
+    this.botToken = process.env.TELEGRAM_TOKEN_BOT!;
+    this.telegramChatId = process.env.TELEGRAM_CHAT_ID!;
     this.bot = new Telegraf(this.botToken);
   }
 
-  private getDates() {
-    let dates = [];
-    const today = new Date();
-
-    for (let i = 0; i < 5; i++) {
-      const newDate = new Date();
-      newDate.setDate(today.getDate() + i);
-      dates.push(newDate.toLocaleDateString("pt-BR", {
-        timeZone: "America/Sao_Paulo",
-      }));
-    }
-
-    return dates;
-  }
+  private textToCommand = {
+    Hoje: "today",
+    Amanhã: "tomorrow",
+    "Depois de amanhã": "afterTomorrow",
+  };
 
   private generateKeyboard() {
-    const dates = this.getDates();
+    const options = [
+      { text: "Hoje" },
+      { text: "Amanhã" },
+      { text: "Depois de amanhã" },
+    ];
 
-    return Markup.keyboard(dates).resize().oneTime();
+    return Markup.keyboard(
+      options.map((option) => Markup.button.text(option.text))
+    )
+      .resize()
+      .oneTime();
+  }
+
+  async getByIndexDate(index: number, selectedBeach: Beach) {
+    const days = await this.scrapingService.getForecastByBeachId(selectedBeach);
+
+    return days[index];
   }
 
   async hearBot() {
     try {
-      for (let i = 0; i < 5; i++) {
-        this.bot.hears(this.getDates()[i], async (ctx) => {
+      Object.entries(this.textToCommand).forEach(([text, command]) => {
+        this.bot.hears(text, async (ctx) => {
           await ctx.reply(`Aguarde um momento...`);
+          const index = Object.values(this.textToCommand).indexOf(command);
           const selectedBeach = getBeachById("cotovelo");
-          if (!selectedBeach) {
-            await ctx.reply(`Praia não encontrada`);
+
+          if(!selectedBeach) {
+            await ctx.reply(`Praia não encontrada!`);
             return;
           }
 
-          const days = await this.scrapingService.getForecastByBeachId(
-            selectedBeach
-          );
+          const day = await this.getByIndexDate(index, selectedBeach);
 
-          const day = days.find((day) => {
-            // SEGUNDA-FEIRA 02 === 02/08/2021
-            // 02 === 02
-            return day.date?.slice(-2) === this.getDates()[i].slice(0, 2);
-          });
+          if (!day) {
+            await ctx.reply(`Previsão não encontrada!`);
+            return;
+          }
 
           await this.sendMessage(
-            formatForecastOneDay(selectedBeach.name, day || days[0])
+            formatForecastOneDay(selectedBeach.name, day)
           );
         });
-      }
+      });
 
       this.bot.launch();
     } catch (error) {
